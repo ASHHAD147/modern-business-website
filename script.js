@@ -12,7 +12,7 @@
 // Replace these three values with your EmailJS details.
 
 const EMAILJS_SERVICE_ID = "service_1mye4o3";
-const EMAILJS_TEMPLATE_ID = "template_SnOikOs";
+const EMAILJS_TEMPLATE_ID = "template_Sn0ik0s";
 const EMAILJS_PUBLIC_KEY = "U-r67MRxKOSDT37t-";
 
 
