@@ -1,47 +1,47 @@
 
+
 // ==========================================
 // NEXORA - PROFESSIONAL WEBSITE JAVASCRIPT
 // ==========================================
 
 
 // ==========================================
-// 1. WEBSITE INITIALIZATION
+// 1. EMAILJS CONFIGURATION
+// ==========================================
+
+// Replace these three values with your EmailJS details.
+
+const EMAILJS_SERVICE_ID = "service_1mye4o3";
+const EMAILJS_TEMPLATE_ID = "template_SnOikOs";
+const EMAILJS_PUBLIC_KEY = "U-r67MRxKOSDT37t-";
+
+
+// ==========================================
+// 2. WEBSITE INITIALIZATION
 // ==========================================
 
 document.addEventListener("DOMContentLoaded", function () {
-
     console.log("NEXORA Website Loaded Successfully!");
-
 });
 
 
 // ==========================================
-// 2. MOBILE NAVIGATION MENU
+// 3. MOBILE NAVIGATION MENU
 // ==========================================
 
 const menuToggle = document.getElementById("menuToggle");
-
 const navLinks = document.getElementById("navLinks");
 
 if (menuToggle && navLinks) {
-
-    // Open and close mobile menu
 
     menuToggle.addEventListener("click", function () {
 
         const isOpen = navLinks.classList.toggle("active");
 
-        menuToggle.setAttribute(
-            "aria-expanded",
-            String(isOpen)
-        );
-
+        menuToggle.setAttribute("aria-expanded", String(isOpen));
         menuToggle.textContent = isOpen ? "✕" : "☰";
 
     });
-
-
-    // Close menu after clicking a navigation link
 
     const menuItems = navLinks.querySelectorAll("a");
 
@@ -50,30 +50,22 @@ if (menuToggle && navLinks) {
         link.addEventListener("click", function () {
 
             navLinks.classList.remove("active");
-
             menuToggle.textContent = "☰";
-
             menuToggle.setAttribute("aria-expanded", "false");
 
         });
 
     });
 
-
-    // Close menu when clicking outside
-
     document.addEventListener("click", function (event) {
 
         const clickedInsideMenu = navLinks.contains(event.target);
-
         const clickedMenuButton = menuToggle.contains(event.target);
 
         if (!clickedInsideMenu && !clickedMenuButton) {
 
             navLinks.classList.remove("active");
-
             menuToggle.textContent = "☰";
-
             menuToggle.setAttribute("aria-expanded", "false");
 
         }
@@ -84,75 +76,132 @@ if (menuToggle && navLinks) {
 
 
 // ==========================================
-// 3. CONTACT FORM VALIDATION
+// 4. CONTACT FORM WITH EMAILJS
 // ==========================================
 
 const contactForm = document.getElementById("contactForm");
 
 if (contactForm) {
 
-    contactForm.addEventListener("submit", function (event) {
-
-        // Prevent default form submission
+    contactForm.addEventListener("submit", async function (event) {
 
         event.preventDefault();
 
-
-        // Get input values
-
         const name = document.getElementById("name").value.trim();
-
         const email = document.getElementById("email").value.trim();
-
         const message = document.getElementById("message").value.trim();
-
 
         // Validate empty fields
 
         if (!name || !email || !message) {
-
             alert("Please fill in all fields.");
-
             return;
-
         }
-
 
         // Validate email format
 
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailPattern.test(email)) {
-
             alert("Please enter a valid email address.");
-
             return;
-
         }
-
 
         // Validate message length
 
         if (message.length < 10) {
-
             alert("Please enter a message with at least 10 characters.");
-
             return;
-
         }
 
+        // Check EmailJS configuration
 
-        // Show success message
+        if (
+            !window.emailjs ||
+            EMAILJS_SERVICE_ID === "YOUR_SERVICE_ID" ||
+            EMAILJS_TEMPLATE_ID === "YOUR_TEMPLATE_ID" ||
+            EMAILJS_PUBLIC_KEY === "YOUR_PUBLIC_KEY"
+        ) {
+            alert("Email service is not configured yet. Please try again later.");
+            console.error("EmailJS configuration is missing.");
+            return;
+        }
 
-        alert(
-            "Thank you, " + name +
-            "! Your form passed validation."
+        // Find submit button
+
+        const submitButton = contactForm.querySelector(
+            'button[type="submit"], input[type="submit"]'
         );
 
+        const originalButtonText = submitButton
+            ? (submitButton.textContent || submitButton.value)
+            : "";
 
-        // Clear the form
+        if (submitButton) {
+            submitButton.disabled = true;
 
-        contactForm.reset();
+            if (submitButton.tagName === "INPUT") {
+                submitButton.value = "Sending...";
+            } else {
+                submitButton.textContent = "Sending...";
+            }
+        }
+
+        // Prepare email template variables
+
+        const templateParams = {
+            name: name,
+            email: email,
+            message: message,
+            reply_to: email
+        };
+
+        try {
+
+            // Send email using EmailJS
+
+            await window.emailjs.send(
+                EMAILJS_SERVICE_ID,
+                EMAILJS_TEMPLATE_ID,
+                templateParams,
+                {
+                    publicKey: EMAILJS_PUBLIC_KEY
+                }
+            );
+
+            alert(
+                "Thank you, " + name +
+                "! Your message has been sent successfully."
+            );
+
+            contactForm.reset();
+
+            console.log("NEXORA contact email sent successfully.");
+
+        } catch (error) {
+
+            console.error("EmailJS Error:", error);
+
+            alert(
+                "Sorry! Your message could not be sent. " +
+                "Please try again later."
+            );
+
+        } finally {
+
+            if (submitButton) {
+
+                submitButton.disabled = false;
+
+                if (submitButton.tagName === "INPUT") {
+                    submitButton.value = originalButtonText;
+                } else {
+                    submitButton.textContent = originalButtonText;
+                }
+
+            }
+
+        }
 
     });
 
@@ -160,27 +209,21 @@ if (contactForm) {
 
 
 // ==========================================
-// 4. SCROLL REVEAL ANIMATIONS
+// 5. SCROLL REVEAL ANIMATIONS
 // ==========================================
 
 const revealElements = document.querySelectorAll(
     ".service-card, .portfolio-card, .testimonial-card, .benefit-item"
 );
 
-
-// Add reveal animation styles
-
 revealElements.forEach(function (element) {
 
     element.style.opacity = "0";
-
     element.style.transform = "translateY(30px)";
-
     element.style.transition =
         "opacity 0.7s ease, transform 0.7s ease";
 
 });
-
 
 if ("IntersectionObserver" in window) {
 
@@ -193,7 +236,6 @@ if ("IntersectionObserver" in window) {
                 if (entry.isIntersecting) {
 
                     entry.target.style.opacity = "1";
-
                     entry.target.style.transform = "translateY(0)";
 
                     observer.unobserve(entry.target);
@@ -210,21 +252,15 @@ if ("IntersectionObserver" in window) {
 
     );
 
-
     revealElements.forEach(function (element) {
-
         revealObserver.observe(element);
-
     });
 
 } else {
 
-    // Fallback for older browsers
-
     revealElements.forEach(function (element) {
 
         element.style.opacity = "1";
-
         element.style.transform = "translateY(0)";
 
     });
@@ -233,7 +269,7 @@ if ("IntersectionObserver" in window) {
 
 
 // ==========================================
-// 5. NAVBAR SCROLL EFFECT
+// 6. NAVBAR SCROLL EFFECT
 // ==========================================
 
 const header = document.querySelector(".header");
@@ -257,7 +293,7 @@ window.addEventListener("scroll", function () {
 
 
 // ==========================================
-// 6. BACK TO TOP FUNCTION
+// 7. BACK TO TOP FUNCTION
 // ==========================================
 
 const backToTop = document.querySelector(
@@ -271,11 +307,8 @@ if (backToTop) {
         event.preventDefault();
 
         window.scrollTo({
-
             top: 0,
-
             behavior: "smooth"
-
         });
 
     });
@@ -284,12 +317,10 @@ if (backToTop) {
 
 
 // ==========================================
-// 7. CURRENT YEAR IN FOOTER
+// 8. CURRENT YEAR IN FOOTER
 // ==========================================
 
-const footerText = document.querySelector(
-    ".footer-content p"
-);
+const footerText = document.querySelector(".footer-content p");
 
 if (footerText) {
 
@@ -301,7 +332,7 @@ if (footerText) {
 
 
 // ==========================================
-// 8. HERO BUTTON INTERACTION
+// 9. HERO BUTTON INTERACTION
 // ==========================================
 
 const heroButton = document.querySelector(
@@ -311,29 +342,28 @@ const heroButton = document.querySelector(
 if (heroButton) {
 
     heroButton.addEventListener("click", function () {
-
         console.log("NEXORA project enquiry started!");
-
     });
 
 }
 
 
 // ==========================================
-// 9. SERVICE CARD INTERACTION
+// 10. SERVICE CARD INTERACTION
 // ==========================================
 
-const serviceLinks = document.querySelectorAll(
-    ".service-card a"
-);
+const serviceLinks = document.querySelectorAll(".service-card a");
 
 serviceLinks.forEach(function (link) {
 
     link.addEventListener("click", function () {
 
+        const card = link.closest(".service-card");
+        const heading = card ? card.querySelector("h3") : null;
+
         console.log(
             "Service selected:",
-            link.closest(".service-card").querySelector("h3").textContent
+            heading ? heading.textContent : "Unknown service"
         );
 
     });
@@ -342,7 +372,7 @@ serviceLinks.forEach(function (link) {
 
 
 // ==========================================
-// 10. WEBSITE READY
+// 11. WEBSITE READY
 // ==========================================
 
 console.log(
